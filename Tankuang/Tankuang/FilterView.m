@@ -183,32 +183,27 @@
 {
     
     NSString *currenDate = [AppUtils stringFromDate:[NSDate date]];
+       _bgeView.hidden = YES ;
     if (self.beginDateTf.isFirstResponder) {
-        NSString * beginDate = [AppUtils stringFromDate:self.datePicker.date] ;
+        NSString *beginDate = [AppUtils stringFromDate:self.datePicker.date];
+        
+        if ([self beginDateBiggerEndDate:beginDate endDate:currenDate message:@"选择日期不能超过今天"]) return;
         if (self.endDateTf.text.length) {
-            if ([self beginDateBiggerEndDate:beginDate endDate:self.endDateTf.text]) return ;
-                
-            }
-        NSComparisonResult resul = [beginDate compare:currenDate] ;
-        if (resul == NSOrderedDescending) {
-            [AppUtils showErrorMessage:@"选择日期不能超过今天"] ; return ;
+            if ([self beginDateBiggerEndDate:beginDate endDate:self.endDateTf.text message:@"开始日期不能超过结束日期"]) return;
         }
+        
         self.beginDateTf.text = beginDate ;
-    }else{
+    }else {
         NSString *endDate = [AppUtils stringFromDate:self.datePicker.date];
+        
+        if ([self beginDateBiggerEndDate:endDate endDate:currenDate message:@"选择日期不能超过今天"]) return;
+        
         if (self.beginDateTf.text.length) {
-            if ([self beginDateBiggerEndDate:self.beginDateTf.text endDate:endDate]) return;
+            if ([self beginDateBiggerEndDate:self.beginDateTf.text endDate:endDate message:@"开始日期不能超过结束日期"]) return;
         }
-        
-        NSComparisonResult result = [endDate compare:currenDate];
-        if (result == NSOrderedDescending) {
-            [AppUtils showErrorMessage:@"选择日期不能超过今天"]; return;
-        }
-        
         self.endDateTf.text = endDate;
     }
-    _bgeView.hidden = YES ;
-    
+
     [[UIApplication sharedApplication].keyWindow endEditing:YES];
 
     
@@ -216,26 +211,11 @@
 
 }
 //限制日期选择
-- (BOOL)beginDateBiggerEndDate:(NSString *)beginDate endDate:(NSString *)endDate {
-    NSInteger beginDateYear = [[beginDate substringToIndex:4] integerValue];
-    NSInteger beginDateMonth = [[beginDate substringWithRange:NSMakeRange(5, 2)] integerValue];
-    NSInteger beginDateDay = [[beginDate substringWithRange:NSMakeRange(8, 2)] integerValue];
-    
-    NSInteger endDateYear = [[endDate substringToIndex:4] integerValue];
-    NSInteger endDateMonth = [[endDate substringWithRange:NSMakeRange(5, 2)] integerValue];
-    NSInteger endDateDay = [[endDate substringWithRange:NSMakeRange(8, 2)] integerValue];
-    
-    if (beginDateYear > endDateYear) {
-        [AppUtils showErrorMessage:@"开始日期不能超过结束日期"];
-        return YES;
-    } else if (beginDateMonth > endDateMonth) {
-        [AppUtils showErrorMessage:@"开始日期不能超过结束日期"];
-        return YES;
-    } else if (beginDateDay > endDateDay) {
-        [AppUtils showErrorMessage:@"开始日期不能超过结束日期"];
-        return YES;
+- (BOOL)beginDateBiggerEndDate:(NSString *)beginDate endDate:(NSString *)endDate message:(NSString *)message {
+    NSComparisonResult result = [beginDate compare:endDate];
+    if (result == NSOrderedDescending) {
+        [AppUtils showErrorMessage:message]; return YES;
     }
-    
     return NO;
 }
 
